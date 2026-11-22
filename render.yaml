@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: shree-karni-print-by-qr
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: PUBLIC_URL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: AGENT_TOKEN
+        sync: false
+      - key: UPI_ID
+        value: 7891411425@ptyes
+      - key: SECRET_KEY
+        generateValue: true
