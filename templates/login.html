@@ -1,3 +1,210 @@
-<!doctype html><html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin Login</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head><body>
-<main class="panel narrow"><h1>Admin Login</h1>{% with messages = get_flashed_messages() %}{% for m in messages %}<p class="notice">{{m}}</p>{% endfor %}{% endwith %}
-<form method="post"><label>Username<input name="username" required autocomplete="username"></label><label>Password<input name="password" type="password" required autocomplete="current-password"></label><button>Login</button></form></main></body></html>
+
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login | Shree Karni Computer</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #102a43, #176b87, #0b2545);
+            font-family: Arial, sans-serif;
+        }
+
+        .login-box {
+            width: 100%;
+            max-width: 410px;
+            background: white;
+            padding: 32px 25px;
+            border-radius: 18px;
+            box-shadow: 0 15px 45px rgba(0,0,0,.25);
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 42px;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #12344d;
+            font-size: 25px;
+            margin: 5px 0;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #64748b;
+            margin-bottom: 28px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #334155;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            margin-top: 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 9px;
+            font-size: 16px;
+        }
+
+        input:focus {
+            outline: 2px solid #168aad;
+            border-color: transparent;
+        }
+
+        .password-wrap {
+            position: relative;
+        }
+
+        .password-wrap input {
+            padding-right: 65px;
+        }
+
+        .toggle {
+            position: absolute;
+            right: 10px;
+            top: 17px;
+            border: none;
+            background: transparent;
+            color: #087e9c;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 9px;
+            background: #087e9c;
+            color: white;
+            font-size: 17px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .login-btn:hover {
+            background: #07566e;
+        }
+
+        .notice {
+            background: #fff0f0;
+            color: #b42318;
+            border: 1px solid #fecaca;
+            padding: 11px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        footer {
+            text-align: center;
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 25px;
+        }
+    </style>
+</head>
+
+<body>
+
+<main class="login-box">
+
+    <div class="logo">🖨️</div>
+
+    <h1>Shree Karni Computer</h1>
+
+    <p class="subtitle">Admin Login – QR Print System</p>
+
+    {% with messages = get_flashed_messages() %}
+        {% for m in messages %}
+            <p class="notice">{{ m }}</p>
+        {% endfor %}
+    {% endwith %}
+
+    <form method="post">
+
+        <label>
+            Username
+            <input
+                type="text"
+                name="username"
+                placeholder="Enter Admin Username"
+                required
+                autocomplete="username"
+            >
+        </label>
+
+        <label>
+            Password
+
+            <div class="password-wrap">
+                <input
+                    type="password"
+                    name="password"
+                    id="adminPassword"
+                    placeholder="Enter Admin Password"
+                    required
+                    autocomplete="current-password"
+                >
+
+                <button
+                    type="button"
+                    class="toggle"
+                    onclick="togglePassword()"
+                >Show</button>
+            </div>
+        </label>
+
+        <button type="submit" class="login-btn">
+            Login to Dashboard
+        </button>
+
+    </form>
+
+    <footer>
+        Shree Karni Computer Dalot – Pratapgarh
+        <br>
+        Secure Admin Panel
+    </footer>
+
+</main>
+
+<script>
+function togglePassword() {
+    const password = document.getElementById("adminPassword");
+    const button = document.querySelector(".toggle");
+
+    if (password.type === "password") {
+        password.type = "text";
+        button.textContent = "Hide";
+    } else {
+        password.type = "password";
+        button.textContent = "Show";
+    }
+}
+</script>
+
+</body>
+</html>
