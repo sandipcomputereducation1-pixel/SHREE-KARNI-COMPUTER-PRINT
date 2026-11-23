@@ -1,10 +1,226 @@
-<!doctype html><html lang="hi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin Orders</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head><body>
-<header><h1>Shree Karni – Admin Print Orders</h1><a class="lightlink" href="{{ url_for('admin_logout') }}">Logout</a></header>
-<main class="panel wide"><h2>सभी Orders</h2>
-<div class="stats"><div><b>{{summary.total or 0}}</b><span>Total Orders</span></div><div><b>₹{{'%.2f'|format(summary.revenue or 0)}}</b><span>Total Order Value</span></div><div><b>{{summary.pending or 0}}</b><span>Pending Orders</span></div><div><b>₹{{'%.2f'|format(summary.verified_amount or 0)}}</b><span>Verified Payments</span></div></div>
-<form class="filters" method="get"><input name="q" value="{{q}}" placeholder="Order ID / नाम / मोबाइल खोजें"><select name="status"><option value="">All Status</option>{% for s in ['Pending','Printing','Completed'] %}<option value="{{s}}" {% if status_filter==s %}selected{% endif %}>{{s}}</option>{% endfor %}</select><button class="small">Search</button></form>
-<div class="tablewrap"><table><tr><th>Order ID</th><th>Customer</th><th>File</th><th>Size</th><th>Copies</th><th>Payment</th><th>Amount</th><th>Payment Verify</th><th>Status / Update</th></tr>
-{% for o in orders %}<tr><td><b>{{o.id}}</b><br><small>{{o.created_at}}</small></td><td>{{o.customer_name}}<br>{{o.mobile}}</td><td><a href="{{ url_for('get_file', filename=o.filename) }}" target="_blank">{{o.original_name}}</a></td><td>{{o.print_size}}</td><td>{{o.copies}}</td><td>{{o.payment_mode}}</td><td>₹{{'%.2f'|format(o.amount)}}</td>
-<td>{% if o.payment_mode == 'UPI' %}<b>{{'Verified' if o.payment_verified else 'Not Verified'}}</b><form method="post" action="{{url_for('verify_payment', order_id=o.id)}}"><input type="hidden" name="verified" value="{{0 if o.payment_verified else 1}}"><button class="small secondary">{{'Undo' if o.payment_verified else 'Verify'}}</button></form>{% else %}Cash{% endif %}</td>
-<td><b>{{o.status}}</b><form class="inline" method="post" action="{{url_for('update_status', order_id=o.id)}}"><select name="status">{% for s in ['Pending','Printing','Completed'] %}<option {% if o.status==s %}selected{% endif %}>{{s}}</option>{% endfor %}</select><button class="small">Save</button></form><a href="{{url_for('get_file', filename=o.filename)}}" target="_blank">Open / Print</a> · <a href="{{url_for('download_file', filename=o.filename)}}">Download</a></td></tr>
-{% else %}<tr><td colspan="9">अभी कोई Order नहीं है।</td></tr>{% endfor %}</table></div></main></body></html>
+
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard | Shree Karni Computer</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<header>
+    <h1>Shree Karni Computer</h1>
+    <p>Admin Print Orders Dashboard</p>
+    <a class="lightlink" href="{{ url_for('admin_logout') }}">Logout</a>
+</header>
+
+<main class="panel wide">
+
+<h2>Admin Dashboard</h2>
+
+<div class="stats">
+
+    <div>
+        <b>{{ summary.total or 0 }}</b>
+        <span>Total Orders</span>
+    </div>
+
+    <div>
+        <b>₹{{ '%.2f'|format(summary.revenue or 0) }}</b>
+        <span>Total Order Value</span>
+    </div>
+
+    <div>
+        <b>{{ summary.pending or 0 }}</b>
+        <span>Pending Orders</span>
+    </div>
+
+    <div>
+        <b>₹{{ '%.2f'|format(summary.verified_amount or 0) }}</b>
+        <span>Verified Payments</span>
+    </div>
+
+</div>
+
+<h3>Search Orders</h3>
+
+<form class="filters" method="get">
+
+    <input
+        type="search"
+        name="q"
+        value="{{ q }}"
+        placeholder="Order ID / Customer Name / Mobile"
+    >
+
+    <select name="status">
+        <option value="">All Status</option>
+
+        {% for s in ['Pending', 'Printing', 'Completed'] %}
+        <option value="{{ s }}" {% if status_filter == s %}selected{% endif %}>
+            {{ s }}
+        </option>
+        {% endfor %}
+
+    </select>
+
+    <button class="small">Search</button>
+
+    <a class="button small" href="{{ url_for('admin_dashboard') }}">
+        Reset
+    </a>
+
+</form>
+
+<h3>All Customer Orders</h3>
+
+<div class="tablewrap">
+
+<table>
+
+<thead>
+<tr>
+    <th>Order ID / Date</th>
+    <th>Customer</th>
+    <th>Uploaded File</th>
+    <th>Print Details</th>
+    <th>Payment</th>
+    <th>Payment Verify</th>
+    <th>Order Status</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for o in orders %}
+
+<tr>
+
+    <td>
+        <strong>{{ o.id }}</strong>
+        <br>
+        <small>{{ o.created_at }}</small>
+    </td>
+
+    <td>
+        <strong>{{ o.customer_name or '—' }}</strong>
+        <br>
+        {{ o.mobile }}
+    </td>
+
+    <td>
+        <a href="{{ url_for('get_file', filename=o.filename) }}" target="_blank">
+            {{ o.original_name }}
+        </a>
+        <br>
+        <a href="{{ url_for('download_file', filename=o.filename) }}">
+            Download File
+        </a>
+    </td>
+
+    <td>
+        {{ o.print_size }}
+        <br>
+        Copies: {{ o.copies }}
+    </td>
+
+    <td>
+        <strong>{{ o.payment_mode }}</strong>
+        <br>
+        ₹{{ '%.2f'|format(o.amount) }}
+    </td>
+
+    <td>
+
+        {% if o.payment_mode == 'UPI' %}
+
+            {% if o.payment_verified %}
+                <strong style="color:green">Verified</strong>
+            {% else %}
+                <strong style="color:#b7791f">Not Verified</strong>
+            {% endif %}
+
+            <form method="post"
+                  action="{{ url_for('verify_payment', order_id=o.id) }}">
+
+                <input
+                    type="hidden"
+                    name="verified"
+                    value="{{ 0 if o.payment_verified else 1 }}"
+                >
+
+                <button type="submit" class="small secondary">
+                    {{ 'Undo Verify' if o.payment_verified else 'Verify Payment' }}
+                </button>
+
+            </form>
+
+        {% else %}
+
+            <strong>Cash</strong>
+
+        {% endif %}
+
+    </td>
+
+    <td>
+
+        <strong>{{ o.status }}</strong>
+
+        <form method="post"
+              action="{{ url_for('update_status', order_id=o.id) }}">
+
+            <select name="status">
+
+                {% for s in ['Pending', 'Printing', 'Completed'] %}
+
+                <option value="{{ s }}" {% if o.status == s %}selected{% endif %}>
+                    {{ s }}
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+            <button type="submit" class="small">
+                Update Status
+            </button>
+
+        </form>
+
+        <a href="{{ url_for('get_file', filename=o.filename) }}"
+           target="_blank">
+            Open / Print
+        </a>
+
+    </td>
+
+</tr>
+
+{% else %}
+
+<tr>
+    <td colspan="7">अभी कोई Order नहीं है।</td>
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</main>
+
+<footer>
+    Shree Karni Computer Dalot – Pratapgarh
+    <br>
+    सहायता: 7891411425 / 7339871128
+</footer>
+
+</body>
+</html>
