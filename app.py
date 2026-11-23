@@ -189,7 +189,7 @@ def upload_page():
                  stored, original, datetime.now().strftime("%d-%m-%Y %I:%M %p"), 0))
         return redirect(url_for("order_page", order_id=order_id))
 
-    return render_template("upload.html", upi_id=UPI_ID, shop_name=SHOP_NAME, rates=RATES)
+    return render_template("index.html", upi_id=UPI_ID, shop_name=SHOP_NAME, rates=RATES)
 
 @app.route("/order/<order_id>")
 def order_page(order_id):
